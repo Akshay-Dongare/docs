@@ -37,7 +37,7 @@ from langchain_litellm import LiteLLMEmbeddings
 from langchain_litellm import LiteLLMEmbeddingsRouter
 ```
 
-`LiteLLMEmbeddings` embeds text across 100+ providers with a single consistent interface. All configuration is explicit—no environment variables required.
+`LiteLLMEmbeddings` embeds text across 100+ providers with a single consistent interface. All configuration is explicit, with no environment variables required.
 
 ```python
 from langchain_litellm import LiteLLMEmbeddings
@@ -51,7 +51,7 @@ vectors = embeddings.embed_documents(["hello", "world"])
 query_vector = embeddings.embed_query("hello")
 ```
 
-Switch providers by changing `model`—the interface stays the same:
+Switch providers by changing `model`. The interface stays the same:
 
 ```python
 # Cohere
