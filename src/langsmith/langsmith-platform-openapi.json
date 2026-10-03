@@ -11027,7 +11027,7 @@
           "feedback"
         ],
         "summary": "Create feedback",
-        "description": "Create a new feedback.\n\n`session_id` identifies the tracing project the feedback belongs to. It is\nrequired unless the feedback is addressed by `agent_id` and\n`agent_environment`, which name that project through an Agent environment\nthat already exists.",
+        "description": "Create a new feedback.\n\n`session_id` identifies the tracing project the feedback belongs to. It is\nrequired unless the feedback is addressed by `address`, which names that\nproject through an Agent environment that already exists.",
         "operationId": "create_feedback_api_v1_feedback_post",
         "security": [
           {
@@ -11062,7 +11062,7 @@
             }
           },
           "400": {
-            "description": "agent_id or agent_environment is invalid, or no Agent environment matches them. Feedback does not create one."
+            "description": "The address is invalid, or no Agent environment matches it. Feedback does not create one."
           },
           "403": {
             "description": "The feedback key is reserved, or Agent addressing is not enabled for this workspace."
@@ -22201,7 +22201,7 @@
           "me"
         ],
         "summary": "Update onboarding state field",
-        "description": "Update a specific onboarding completion field for the current user.\n\nValid fields:\n- tracing_completed_at\n- lgstudio_completed_at\n- playground_completed_at\n- evaluation_completed_at\n- success_viewed_at",
+        "description": "Update a specific onboarding completion field for the current user.\n\nValid fields:\n- tracing_completed_at\n- lgstudio_completed_at\n- playground_completed_at\n- evaluation_completed_at\n- success_viewed_at\n- agent_platform_welcome_viewed_at",
         "operationId": "update_onboarding_state_field_api_v1_me_onboarding_state__field__put",
         "security": [
           {
@@ -26346,9 +26346,9 @@
             "in": "query",
             "schema": {
               "default": 20,
-              "minimum": 1,
               "maximum": 100,
               "type": "integer",
+              "minimum": 1,
               "title": "Limit"
             }
           },
@@ -26358,8 +26358,8 @@
             "in": "query",
             "schema": {
               "default": 0,
-              "minimum": 0,
               "type": "integer",
+              "minimum": 0,
               "title": "Offset"
             }
           },
@@ -27662,12 +27662,12 @@
             "in": "query",
             "required": true,
             "schema": {
+              "type": "string",
               "enum": [
                 "needs_my_review",
                 "needs_others_review",
                 "archived"
               ],
-              "type": "string",
               "title": "Status"
             }
           },
@@ -27695,11 +27695,11 @@
             "name": "item_type",
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "RUN",
                 "THREAD"
               ],
-              "type": "string",
               "title": "Item Type"
             }
           },
@@ -27729,11 +27729,11 @@
             "in": "query",
             "schema": {
               "default": "forward",
+              "type": "string",
               "enum": [
                 "forward",
                 "backward"
               ],
-              "type": "string",
               "title": "Direction"
             }
           }
@@ -28851,6 +28851,83 @@
         }
       }
     },
+    "/api/v1/platform/datasets/{dataset_id}/examples/{example_id}": {
+      "delete": {
+        "description": "Soft-delete an example, preserving prior versions and their attachments. If the latest version is already deleted, the request succeeds without creating another version. Deletion is recorded at the current time or just after the latest version, whichever is later. For future-dated versions, latest reads reflect deletion immediately; timestamp reads reflect deletion only at or after the recorded deletion timestamp.",
+        "tags": [
+          "examples"
+        ],
+        "summary": "Delete an example",
+        "parameters": [
+          {
+            "description": "Dataset ID",
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Example ID",
+            "name": "example_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Example deleted or already deleted"
+          },
+          "400": {
+            "description": "Invalid dataset or example ID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update this dataset",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Example not found in this dataset",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shared.ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "API Key": [],
+            "Tenant ID": []
+          },
+          {
+            "Bearer Auth": [],
+            "Tenant ID": []
+          }
+        ],
+        "x-public": true
+      }
+    },
     "/api/v1/platform/evaluators": {
       "get": {
         "description": "List evaluators for the current workspace, with optional filtering by type, name, tag, feedback key, or resource ID.",
@@ -28884,10 +28961,10 @@
             "style": "form",
             "explode": false,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Tag Value Id"
             }
           },
@@ -28907,10 +28984,10 @@
             "style": "form",
             "explode": false,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Resource Id"
             }
           },
@@ -29124,10 +29201,10 @@
             "style": "form",
             "explode": false,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Evaluator Ids"
             }
           },
@@ -29258,10 +29335,10 @@
             "style": "form",
             "explode": false,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Resource Id"
             }
           },
@@ -29290,10 +29367,10 @@
             "style": "form",
             "explode": false,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Tag Value Id"
             }
           },
@@ -30821,11 +30898,11 @@
             "name": "repo_type",
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "agent",
                 "skill"
               ],
-              "type": "string",
               "title": "Repo Type"
             }
           }
@@ -31053,6 +31130,7 @@
             "name": "status",
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "open",
                 "fixing",
@@ -31060,7 +31138,6 @@
                 "completed",
                 "ignored"
               ],
-              "type": "string",
               "title": "Status"
             }
           },
@@ -31069,13 +31146,13 @@
             "name": "severity",
             "in": "query",
             "schema": {
+              "type": "integer",
               "enum": [
                 0,
                 1,
                 2,
                 3
               ],
-              "type": "integer",
               "title": "Severity"
             }
           },
@@ -31086,6 +31163,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   0,
@@ -31095,7 +31173,6 @@
                 ],
                 "type": "integer"
               },
-              "type": "array",
               "title": "Severity Exact"
             }
           },
@@ -31106,6 +31183,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   "fixing",
@@ -31114,7 +31192,6 @@
                 ],
                 "type": "string"
               },
-              "type": "array",
               "title": "Activity"
             }
           },
@@ -31151,6 +31228,7 @@
             "name": "sort_by",
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "default",
                 "created_at",
@@ -31160,7 +31238,6 @@
                 "trace_count",
                 "severity"
               ],
-              "type": "string",
               "title": "Sort By"
             }
           },
@@ -33511,10 +33588,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Name Like"
             }
           },
@@ -33525,10 +33602,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Email Like"
             }
           },
@@ -33539,10 +33616,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Workspace Name Like"
             }
           },
@@ -33553,10 +33630,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Organization Role Like"
             }
           },
@@ -33567,10 +33644,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Workspace Role Like"
             }
           }
@@ -33793,10 +33870,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Access Policy Ids"
             }
           }
@@ -36382,10 +36459,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           }
@@ -36479,10 +36556,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           }
@@ -36573,10 +36650,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           },
@@ -36707,10 +36784,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           }
@@ -36830,10 +36907,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           }
@@ -37227,6 +37304,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   "ID",
@@ -37278,7 +37356,6 @@
                 ],
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           },
@@ -37806,10 +37883,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Tag Value Id"
             }
           },
@@ -37829,10 +37906,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Label"
             }
           },
@@ -39624,10 +39701,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Label"
             }
           },
@@ -40125,11 +40202,11 @@
             "name": "resource_type",
             "in": "query",
             "schema": {
+              "type": "string",
               "enum": [
                 "SANDBOX",
                 "SNAPSHOT"
               ],
-              "type": "string",
               "title": "Resource Type"
             }
           },
@@ -40140,10 +40217,10 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "type": "string"
               },
-              "type": "array",
               "title": "Resource Ids"
             }
           },
@@ -40153,9 +40230,9 @@
             "in": "query",
             "schema": {
               "default": 20,
-              "minimum": 1,
               "maximum": 100,
               "type": "integer",
+              "minimum": 1,
               "title": "Page Size"
             }
           },
@@ -40165,11 +40242,11 @@
             "in": "query",
             "schema": {
               "default": "HOUR",
+              "type": "string",
               "enum": [
                 "HOUR",
                 "RESOURCE"
               ],
-              "type": "string",
               "title": "Granularity"
             }
           },
@@ -41842,6 +41919,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   "TURNS",
@@ -41864,7 +41942,6 @@
                 ],
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           },
@@ -42027,9 +42104,9 @@
             "in": "query",
             "schema": {
               "default": 20,
-              "minimum": 1,
               "maximum": 100,
               "type": "integer",
+              "minimum": 1,
               "title": "Page Size"
             }
           },
@@ -42055,6 +42132,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   "THREAD_ID",
@@ -42085,7 +42163,6 @@
                 ],
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           },
@@ -42438,6 +42515,7 @@
             "style": "form",
             "explode": true,
             "schema": {
+              "type": "array",
               "items": {
                 "enum": [
                   "ID",
@@ -42489,7 +42567,6 @@
                 ],
                 "type": "string"
               },
-              "type": "array",
               "title": "Selects"
             }
           }
@@ -44508,9 +44585,9 @@
             "in": "query",
             "schema": {
               "default": 50,
-              "minimum": 1,
               "maximum": 100,
               "type": "integer",
+              "minimum": 1,
               "title": "Limit"
             }
           },
@@ -44519,8 +44596,8 @@
             "in": "query",
             "schema": {
               "default": 0,
-              "minimum": 0,
               "type": "integer",
+              "minimum": 0,
               "title": "Offset"
             }
           }
@@ -45484,9 +45561,9 @@
             "in": "query",
             "schema": {
               "default": 20,
-              "minimum": 1,
               "maximum": 100,
               "type": "integer",
+              "minimum": 1,
               "title": "Page Size"
             }
           },
@@ -47773,6 +47850,7 @@
           "create_tagging",
           "delete_tagging",
           "create_agent",
+          "create_agent_environment",
           "update_agent",
           "delete_agent",
           "create_agent_runtime_binding",
@@ -47847,6 +47925,11 @@
           "attach_access_policies",
           "detach_access_policies",
           "read_role_access_policies",
+          "read_team_access_policies",
+          "create_team",
+          "add_team_members",
+          "attach_team_access_policy",
+          "detach_team_access_policy",
           "create_scim_token",
           "update_scim_token",
           "delete_scim_token",
@@ -49513,6 +49596,11 @@
             "$ref": "#/components/schemas/BulkExportCompression",
             "default": "zstandard"
           },
+          "is_rollup_disabled": {
+            "type": "boolean",
+            "title": "Is Rollup Disabled",
+            "default": false
+          },
           "interval_hours": {
             "anyOf": [
               {
@@ -49672,6 +49760,11 @@
           "compression": {
             "$ref": "#/components/schemas/BulkExportCompression",
             "default": "zstandard"
+          },
+          "is_rollup_disabled": {
+            "type": "boolean",
+            "title": "Is Rollup Disabled",
+            "default": false
           },
           "interval_hours": {
             "anyOf": [
@@ -56570,37 +56663,15 @@
               }
             ],
             "title": "Session Id",
-            "description": "Required unless the feedback is addressed by agent_id and agent_environment. The ID of the tracing project (session) the feedback belongs to."
+            "description": "Required unless the feedback is addressed by address. The ID of the tracing project (session) the feedback belongs to."
           },
-          "agent_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Agent Id",
-            "description": "Experimental. Only supported in workspaces where Agent addressing is enabled; other workspaces get a 403. The Agent's id, not a UUID: 1 to 63 lowercase ASCII letters, digits, or hyphens, starting with a letter and ending with a letter or digit (e.g. support-agent). Addresses the tracing project through an Agent instead of session_id. Sent together with agent_environment, and never alongside session_id. The Agent and the environment must already exist; sending feedback does not create them."
-          },
-          "agent_environment": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "LOCAL",
-                  "DEVELOPMENT",
-                  "STAGING",
-                  "PRODUCTION"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Agent Environment",
-            "description": "Experimental. Only supported in workspaces where Agent addressing is enabled; other workspaces get a 403. The Agent environment whose tracing project the feedback belongs to. Matched case-insensitively. Sent together with agent_id."
+          "address": {
+            "type": "string",
+            "title": "Address",
+            "description": "Beta. Only supported in workspaces where Agent addressing is enabled; other workspaces get a 403. Addresses the tracing project through an Agent environment, as lrn:agents/{id}/environments/{environment}, instead of session_id. The id is 1 to 63 lowercase ASCII letters, digits, or hyphens, starting with a letter and ending with a letter or digit. The environment is local, development, staging, or production, matched case-insensitively. Never combined with session_id. The Agent and the environment must already exist; sending feedback does not create them.",
+            "examples": [
+              "lrn:agents/support-agent/environments/production"
+            ]
           },
           "trace_id": {
             "anyOf": [
@@ -62110,8 +62181,24 @@
             ],
             "title": "Display Name"
           },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
           "config": {
             "$ref": "#/components/schemas/OrganizationConfig"
+          },
+          "topic_search_enabled": {
+            "type": "boolean",
+            "title": "Topic Search Enabled",
+            "default": false
           },
           "engine_enabled": {
             "anyOf": [
@@ -62448,6 +62535,17 @@
             "type": "string",
             "title": "Display Name"
           },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
           "tier": {
             "anyOf": [
               {
@@ -62698,6 +62796,11 @@
               }
             ],
             "title": "Llm Auth Proxy Allowed Urls"
+          },
+          "topic_search_enabled": {
+            "type": "boolean",
+            "title": "Topic Search Enabled",
+            "default": false
           },
           "engine_enabled": {
             "anyOf": [
@@ -62970,6 +63073,11 @@
               }
             ],
             "title": "Llm Auth Proxy Allowed Urls"
+          },
+          "topic_search_enabled": {
+            "type": "boolean",
+            "title": "Topic Search Enabled",
+            "default": false
           },
           "engine_enabled": {
             "anyOf": [
@@ -76722,6 +76830,18 @@
             ],
             "title": "Success Viewed At"
           },
+          "agent_platform_welcome_viewed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Platform Welcome Viewed At"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -78256,8 +78376,8 @@
             "type": "boolean"
           },
           "byoc_external_id": {
-            "description": "ByocExternalID is the organization's assigned AWS external ID, stored only in org config.",
             "readOnly": true,
+            "description": "ByocExternalID is the organization's assigned AWS external ID, stored only in org config.",
             "anyOf": [
               {
                 "type": "string"
@@ -81056,6 +81176,10 @@
           "customer_info": {
             "$ref": "#/components/schemas/info.CustomerInfo"
           },
+          "engine_github_web_base_url": {
+            "type": "string",
+            "format": "uri"
+          },
           "git_sha": {
             "type": "string"
           },
@@ -81285,6 +81409,17 @@
           },
           "fix_dispatched_at": {
             "type": "string"
+          },
+          "fix_handoff_bot_user_id": {
+            "description": "Non-nil once the issue is handed off to a coding agent; Engine skips its\nown fix run while it is set.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "fix_pr_number": {
             "type": "integer"
@@ -82479,6 +82614,16 @@
           "api_key_creation_from_api_keys_enabled": {
             "type": "boolean"
           },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "byoc_create_saas_workspace_enabled": {
             "type": "boolean"
           },
@@ -82620,6 +82765,10 @@
           },
           "tier": {
             "type": "string"
+          },
+          "topic_search_enabled": {
+            "type": "boolean",
+            "default": false
           },
           "workspace_admin_can_invite_to_org": {
             "type": "boolean"
@@ -83722,19 +83871,10 @@
       "runs.Run": {
         "type": "object",
         "properties": {
-          "agent_environment": {
-            "description": "Experimental. The Agent environment the run belongs to, case-insensitive;\nrequires agent_id. Only workspaces enabled for Agent addressing accept it;\nothers get a 403.",
+          "address": {
+            "description": "Beta. Addresses the run to an Agent environment in place of session_id or\nsession_name, as lrn:agents/{id}/environments/{environment}. The environment is\ncase-insensitive. Only workspaces enabled for Agent addressing accept it;\nothers get a 403.",
             "type": "string",
-            "enum": [
-              "LOCAL",
-              "DEVELOPMENT",
-              "STAGING",
-              "PRODUCTION"
-            ]
-          },
-          "agent_id": {
-            "description": "Experimental. Addresses the run to an Agent, with agent_environment, in\nplace of session_id or session_name. Only workspaces enabled for Agent\naddressing accept it; others get a 403.",
-            "type": "string"
+            "example": "lrn:agents/support-agent/environments/production"
           },
           "dotted_order": {
             "type": "string"
@@ -84993,6 +85133,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/sandboxes.ProxyHeader"
+            }
+          },
+          "match_headers": {
+            "description": "MatchHeaders restricts a header injection rule to requests carrying every listed header, each written \"name: value\" with a lowercase name and an exact value. Pair with headers of the same name to swap a placeholder the sandbox sends (e.g. \"authorization: Bearer account-b\") for a real credential, so one host can serve several accounts. Rules are evaluated in order and the first match wins.",
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
           "match_hosts": {
@@ -87172,6 +87319,21 @@
             "description": "Keep empty Slack fields in the response. The frontend uses an explicit\nempty string to distinguish URL destinations from Slack destinations.",
             "type": "string"
           },
+          "slack_handoff": {
+            "description": "SlackHandoff is nil when no coding-agent hand-off is set on this destination.",
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/webhooks.SlackHandoffResponse"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "slack_team_id": {
             "type": "string"
           },
@@ -87293,6 +87455,17 @@
           "name": {
             "type": "string",
             "example": "Ada Lovelace"
+          }
+        }
+      },
+      "webhooks.SlackHandoffResponse": {
+        "type": "object",
+        "required": [
+          "bot_user_id"
+        ],
+        "properties": {
+          "bot_user_id": {
+            "type": "string"
           }
         }
       },
